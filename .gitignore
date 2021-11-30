@@ -2,3 +2,5 @@ Procfile
 .idea/
 __pycache__/
 data.csv
+Pipfile.lock
+Pipfile
