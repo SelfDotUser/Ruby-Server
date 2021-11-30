@@ -4,7 +4,7 @@ from markupsafe import escape
 app = Flask(__name__)
 
 
-@app.route("/weight-for-<int:user_id>/", methods=["GET"])
+@app.route("/weight-for-<user_id>/", methods=["GET"])
 def get_weight():
     """
     Using the UserID provided in the link, this would return a JSON file with the user data and the weight during the
@@ -15,7 +15,7 @@ def get_weight():
     pass
 
 
-@app.route("/send-weight-for-<int:user_id>/", methods=["POST"])
+@app.route("/send-weight-for-<user_id>/", methods=["POST"])
 def post_weight():
     """
     Using the UserID provided in the link and a bytes dictionary with the UserID, weight, and current date/time, this

@@ -7,6 +7,7 @@ import random
 
 # Keeping this here so that the proper keys are set without struggle.
 isPublic = False
+toFile = "data.csv"
 
 
 class Now:
@@ -58,11 +59,11 @@ class DataManager:
             "Ruby": create_new_data()
         })
 
-        data.to_csv("rubyserver/data.csv", index=False)
+        data.to_csv(toFile, index=False)
 
     @staticmethod
     def return_dataframe():
-        frame = pd.read_csv("rubyserver/data.csv", index_col='Date')
+        frame = pd.read_csv(toFile, index_col='Date')
 
         return frame
 
@@ -88,7 +89,25 @@ class DataManager:
         else:
             dataframe.loc[date, user_id] = weight
 
-        dataframe.to_csv(f"rubyserver/data.csv", index=True, index_label="Date")
+        dataframe.to_csv(toFile, index=True, index_label="Date")
+
+    @staticmethod
+    def get_user_weight(user_id: str):
+        """
+        Returns the weight for the specified user.
+        :param user_id: String
+        :return: Dictionary of the data for the specified user.
+        """
+        assert type(user_id) is str, 'For performance, please set "user_id" to a string.'
+
+        frame = DataManager.return_dataframe()
+        dates = frame.index.values
+        data = {}
+
+        for index, value in enumerate(frame.loc[:, user_id]):
+            data[dates[index]] = value
+
+        return data
 
 
-DataManager.record_weight("Ruby", 300)
+DataManager.get_user_weight("Carlos")
