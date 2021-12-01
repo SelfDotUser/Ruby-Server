@@ -16,9 +16,6 @@ isPublic = True
 if not isPublic:
     load_dotenv()
 
-# TODO: Remove this after finished beta testing.
-load_dotenv()
-
 toFile = os.getenv("NAME_OF_CSV")
 
 
