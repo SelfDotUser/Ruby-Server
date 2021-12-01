@@ -1,3 +1,5 @@
+import ast
+import json
 import pytz
 from datetime import datetime
 import calendar
@@ -9,8 +11,11 @@ import random
 isPublic = False
 toFile = "data.csv"
 
+# TODO: Add a "user check" function that checks whether a user exists w/ a boolean whether or not to create one.
+# TODO: Add AWSManager class.
 
-class Now:
+
+class TimeManager:
     def __init__(self):
         utc_now = pytz.utc.localize(datetime.utcnow())
         self.pst = utc_now.astimezone(pytz.timezone('US/Pacific'))
@@ -68,16 +73,42 @@ class DataManager:
         return frame
 
     @staticmethod
-    def record_weight(user_id: str, weight):
+    def record_weight(data: bytes):
         """
         Records the weight of the individual.
         """
+        data = ConvertManager.bytes_to_dictionary(data)
+        data_to_return = {}
+        successful = True
+
+        # Checking if the data from the server is as specified in the documentation.
+        # "user_id" and "weight" are the only and required things that should be in the data.
+        if "user_id" not in data:
+            data_to_return["status"] = "ERROR: 'user_id' must be included."
+            successful = False
+        elif "weight" not in data:
+            data_to_return["status"] = "ERROR: 'weight' must be included."
+            successful = False
+
+        for key in data:
+            if key not in ("user_id", "weight"):
+                data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
+                successful = False
+
+        if not successful:
+            return ConvertManager.dictionary_to_bytes(data_to_return)
+
+        user_id = data["user_id"]
+        weight = float(data["weight"])
+
         assert type(weight) is int or type(weight) is float, '"weight" parameter must be either an integer or a float.'
 
+        time = TimeManager().pst
+
         user_id = user_id if type(user_id) is str else str(user_id)
-        day = Now().pst.day if Now().pst.day >= 10 else f"0{Now().pst.day}"
-        month = Now().pst.month if Now().pst.month >= 10 else f"0{Now().pst.month}"
-        date = f"{Now().pst.year}-{month}-{day}"
+        day = time.day if time.pst.day >= 10 else f"0{time.pst.day}"
+        month = time.pst.month if time.pst.month >= 10 else f"0{time.pst.month}"
+        date = f"{time.pst.year}-{month}-{day}"
 
         dataframe = DataManager.return_dataframe()
 
@@ -91,11 +122,17 @@ class DataManager:
 
         dataframe.to_csv(toFile, index=True, index_label="Date")
 
+        data_to_return["weight"] = DataManager.get_user_weight(user_id, False)
+        data_to_return["status"] = "200"
+
+        return ConvertManager.dictionary_to_bytes(data_to_return)
+
     @staticmethod
-    def get_user_weight(user_id: str):
+    def get_user_weight(user_id: str, convert: bool):
         """
         Returns the weight for the specified user.
         :param user_id: String
+        :param convert: Boolean, specify if you want it converted or not.
         :return: Dictionary of the data for the specified user.
         """
         assert type(user_id) is str, 'For performance, please set "user_id" to a string.'
@@ -107,7 +144,36 @@ class DataManager:
         for index, value in enumerate(frame.loc[:, user_id]):
             data[dates[index]] = value
 
-        return data
+        if convert:
+            return ConvertManager.dictionary_to_bytes(data)
+        else:
+            return data
 
 
-DataManager.get_user_weight("Carlos")
+class ConvertManager:
+    """
+    Converts from bytes to dictionary and vice versa.
+    """
+
+    @staticmethod
+    def bytes_to_dictionary(data_to_convert: bytes):
+        """
+        Converts bytes into a dictionary.
+        :param data_to_convert: Bytes
+        :return: Dictionary
+        """
+
+        return ast.literal_eval(data_to_convert.decode('utf-8'))
+
+    @staticmethod
+    def dictionary_to_bytes(data_to_convert: dict):
+        """
+        Converts dictionary into bytes.
+        :param data_to_convert: Dictionary
+        :return: Bytes
+        """
+
+        return json.dumps(data_to_convert, indent=2).encode('utf-8')
+
+
+print(DataManager.get_user_weight("Carlos"))

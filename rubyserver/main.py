@@ -1,21 +1,22 @@
 from flask import Flask, request
 from markupsafe import escape
+from SupportProtocol import DataManager
 
 app = Flask(__name__)
 
 
-@app.route("/weight-for-<user_id>/", methods=["GET"])
-def get_weight():
+@app.route("/weight-<user_id>/", methods=["GET"])
+def get_weight(user_id):
     """
     Using the UserID provided in the link, this would return a JSON file with the user data and the weight during the
     month.
 
     :return: Bytes JSON data
     """
-    pass
+    return DataManager.get_user_weight(escape(user_id), True)
 
 
-@app.route("/send-weight-for-<user_id>/", methods=["POST"])
+@app.route("/update_weight/", methods=["POST"])
 def post_weight():
     """
     Using the UserID provided in the link and a bytes dictionary with the UserID, weight, and current date/time, this
@@ -23,4 +24,10 @@ def post_weight():
 
     :return: A success/error message.
     """
-    pass
+    return DataManager.record_weight(request.data)
+
+
+sample_post = {
+    "user_id": "Carlos",
+    "weight": "190"
+}
