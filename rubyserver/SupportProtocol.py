@@ -170,10 +170,17 @@ class DataManager:
                 data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
+        user_id = data["user_id"]
+
+        user_exists = DataManager.user_check(user_id)
+
+        if not user_exists:
+            data_to_return = {"status": f"ERROR: User '{user_id}' is not in the database."}
+            successful = False
+
         if not successful:
             return ConvertManager.dictionary_to_bytes(data_to_return)
 
-        user_id = data["user_id"]
         weight = float(data["weight"])
 
         assert type(weight) is int or type(weight) is float, '"weight" parameter must be either an integer or a float.'

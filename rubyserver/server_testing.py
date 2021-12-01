@@ -11,7 +11,7 @@ import requests
 
 class Testing:
     def __init__(self):
-        self.root = "http://127.0.0.1:5000"
+        self.root = "https://ruby-weight-management.herokuapp.com"
 
     def test1(self, user_id="759499444533067836"):
         """
@@ -139,7 +139,7 @@ class Testing:
         Expected result: A new user to be created. Soon after, test1 with the new ID will run.
         """
         testing_route = "/new-user/"
-        testing_data = {"user_id": "2438057320957"}
+        testing_data = {"user_id": "34098523890"}
 
         response = requests.post(f"{self.root}{testing_route}", json=testing_data)
 
@@ -147,7 +147,7 @@ class Testing:
 
         print(f"Data:\n{response.text}")
         print("-" * 20)
-        Testing().test1(user_id="2438057320957")
+        Testing().test1(user_id="34098523890")
 
 
 print("-" * 20)
