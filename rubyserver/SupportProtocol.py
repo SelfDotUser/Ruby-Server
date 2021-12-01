@@ -5,14 +5,18 @@ from datetime import datetime
 import calendar
 import pandas as pd
 import random
+from dotenv import load_dotenv
+import os
+import boto3
+import io
 
 
-# Keeping this here so that the proper keys are set without struggle.
 isPublic = False
-toFile = "data.csv"
 
-# TODO: Add a "user check" function that checks whether a user exists w/ a boolean whether or not to create one.
-# TODO: Add AWSManager class.
+if not isPublic:
+    load_dotenv()
+
+toFile = os.getenv("NAME_OF_CSV")
 
 
 class TimeManager:
@@ -46,6 +50,72 @@ class TimeManager:
         return calendar.monthrange(year, month)[1]
 
 
+class AWSManager:
+    def __init__(self):
+        """
+        Initiate AWS S3 credentials.
+        """
+        self.s3 = boto3.resource(
+            service_name='s3',
+            region_name=os.getenv("AWS_REGION"),
+            aws_access_key_id=os.getenv('AWS_ACCESS_KEY'),
+            aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
+        )
+
+        self.bucket_name = os.getenv("BUCKET_NAME")
+
+    def update_file(self, file: str, data, type_of: str):
+        """
+        Gets content from a file, deletes the original, and uploads the updated version.
+        :param file: Name of file.
+        :param data: Dictionary of updated data.
+        :param type_of: Type of file. Can either be "str" or "dict".
+        """
+        types = ("str", "dict")
+
+        assert type(type_of) is str, '"type_of" must be a string.'
+        assert type_of in types, '"type_of" must either be "str" or "dict".'
+
+        bytes_data = self.s3.Bucket(self.bucket_name).Object(file).get()['Body'].read()
+
+        if type_of == "dict":
+            dictionary = ConvertManager().bytes_to_dictionary(bytes_data)
+
+            dictionary.update(data)
+
+            self.s3.Bucket(self.bucket_name).Object(file).delete()
+            data_for_aws = ConvertManager().dictionary_to_bytes(dictionary)
+
+            self.s3.Bucket(self.bucket_name).put_object(Key=file, Body=data_for_aws)
+
+        elif type_of == "str":
+            data = ConvertManager().bytes_to_string(bytes_data)
+
+            self.s3.Bucket(self.bucket_name).Object(file).delete()
+            data_for_aws = ConvertManager().string_to_bytes(data)
+
+            self.s3.Bucket(self.bucket_name).put_object(Key=file, Body=data_for_aws)
+
+    def get_file(self, file: str, type_of: str):
+        """
+        Returns the content of a file.
+        :param file: Name of file.
+        :param type_of: The type of file we need. Can be "dict" or "str".
+        :return: Dictionary
+        """
+        types = ("str", "dict")
+
+        assert type(type_of) is str, '"type_of" must be a string.'
+        assert type_of in types, '"type_of" must either be "str" or "dict".'
+
+        bytes_data = self.s3.Bucket(self.bucket_name).Object(file).get()['Body'].read()
+
+        if type_of == "dict":
+            return ConvertManager().bytes_to_dictionary(bytes_data)
+        elif type_of == "str":
+            return ConvertManager().bytes_to_string(bytes_data)
+
+
 class DataManager:
     @staticmethod
     def create_frame():
@@ -53,22 +123,30 @@ class DataManager:
         This is for developmental purposes only.
         Creates a brand new set for testing.
         """
+        assert not isPublic, '"isPublic" is set to True. This is a development function.'
 
         def create_new_data():
-            return [random.randint(195, 200) for i in range(0, 5)]
+            return [random.randint(180, 200) for i in range(0, 5)]
 
-        data = pd.DataFrame({
+        frame = pd.DataFrame({
             "Date": ["2021-11-29", "2021-11-30", "2021-12-01", "2021-12-05", "2021-11-10"],
             "Matt": create_new_data(),
             "Carlos": create_new_data(),
             "Ruby": create_new_data()
         })
 
-        data.to_csv(toFile, index=False)
+        frame.to_csv(toFile, index=False)
 
     @staticmethod
     def return_dataframe():
-        frame = pd.read_csv(toFile, index_col='Date')
+        if isPublic:
+            data_string = ConvertManager.bytes_to_string(AWSManager().get_file(toFile, "str"))
+            f = io.StringIO()
+            f.write(data_string)
+            frame = pd.read_csv(f, index_col='Date')
+            f.close()
+        else:
+            frame = pd.read_csv(toFile, index_col='Date')
 
         return frame
 
@@ -173,6 +251,9 @@ class ConvertManager:
     """
     Converts from bytes to dictionary and vice versa.
     """
+    @staticmethod
+    def bytes_to_string(data_to_convert: bytes):
+        return data_to_convert.decode('utf-8')
 
     @staticmethod
     def bytes_to_dictionary(data_to_convert: bytes):
@@ -193,3 +274,7 @@ class ConvertManager:
         """
 
         return json.dumps(data_to_convert, indent=2).encode('utf-8')
+
+    @staticmethod
+    def string_to_bytes(data_to_convert: str):
+        return data_to_convert.encode('utf-8')

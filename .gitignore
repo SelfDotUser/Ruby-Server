@@ -4,3 +4,5 @@ __pycache__/
 data.csv
 Pipfile.lock
 Pipfile
+.env
+dskjgn.csv
