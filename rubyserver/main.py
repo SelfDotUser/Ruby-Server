@@ -1,6 +1,6 @@
 from flask import Flask, request
 from markupsafe import escape
-from SupportProtocol import DataManager
+from rubyserver.SupportProtocol import DataManager
 
 app = Flask(__name__)
 
@@ -13,7 +13,7 @@ def get_weight(user_id):
 
     :return: Bytes JSON data
     """
-    return DataManager.get_user_weight(escape(user_id), True)
+    return DataManager.get_user_weight(escape(user_id).striptags(), True)
 
 
 @app.route("/update_weight/", methods=["POST"])

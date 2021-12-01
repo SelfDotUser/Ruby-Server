@@ -11,10 +11,13 @@ import boto3
 import io
 
 
-isPublic = False
+isPublic = True
 
 if not isPublic:
     load_dotenv()
+
+# TODO: Remove this after finished beta testing.
+load_dotenv()
 
 toFile = os.getenv("NAME_OF_CSV")
 
@@ -89,8 +92,6 @@ class AWSManager:
             self.s3.Bucket(self.bucket_name).put_object(Key=file, Body=data_for_aws)
 
         elif type_of == "str":
-            data = ConvertManager().bytes_to_string(bytes_data)
-
             self.s3.Bucket(self.bucket_name).Object(file).delete()
             data_for_aws = ConvertManager().string_to_bytes(data)
 
@@ -140,9 +141,8 @@ class DataManager:
     @staticmethod
     def return_dataframe():
         if isPublic:
-            data_string = ConvertManager.bytes_to_string(AWSManager().get_file(toFile, "str"))
-            f = io.StringIO()
-            f.write(data_string)
+            data_string = AWSManager().get_file(toFile, "str")
+            f = io.StringIO(data_string)
             frame = pd.read_csv(f, index_col='Date')
             f.close()
         else:
@@ -184,9 +184,9 @@ class DataManager:
         time = TimeManager().pst
 
         user_id = user_id if type(user_id) is str else str(user_id)
-        day = time.day if time.pst.day >= 10 else f"0{time.pst.day}"
-        month = time.pst.month if time.pst.month >= 10 else f"0{time.pst.month}"
-        date = f"{time.pst.year}-{month}-{day}"
+        day = time.day if time.day >= 10 else f"0{time.day}"
+        month = time.month if time.month >= 10 else f"0{time.month}"
+        date = f"{time.year}-{month}-{day}"
 
         dataframe = DataManager.return_dataframe()
 
@@ -198,10 +198,12 @@ class DataManager:
         else:
             dataframe.loc[date, user_id] = weight
 
-        dataframe.to_csv(toFile, index=True, index_label="Date")
+        if not isPublic:
+            dataframe.to_csv(toFile, index=True, index_label="Date")
+        else:
+            AWSManager().update_file(os.getenv("NAME_OF_CSV"), dataframe.to_csv(index=True, index_label="Date"), "str")
 
-        data_to_return["weight"] = DataManager.get_user_weight(user_id, False)
-        data_to_return["status"] = "200"
+        data_to_return = DataManager.get_user_weight(user_id, False)
 
         return ConvertManager.dictionary_to_bytes(data_to_return)
 
@@ -215,12 +217,22 @@ class DataManager:
         """
         assert type(user_id) is str, 'For performance, please set "user_id" to a string.'
 
+        user_exists = DataManager.user_check(user_id, False)
+
+        if not user_exists:
+            data = {"status": f"ERROR: User '{user_id}' is not in the database."}
+
+            if convert:
+                return ConvertManager.dictionary_to_bytes(data)
+            else:
+                return data
+
         frame = DataManager.return_dataframe()
         dates = frame.index.values
-        data = {}
+        data = {"weight": {}, "status": 200}
 
         for index, value in enumerate(frame.loc[:, user_id]):
-            data[dates[index]] = value
+            data["weight"][dates[index]] = value
 
         if convert:
             return ConvertManager.dictionary_to_bytes(data)
