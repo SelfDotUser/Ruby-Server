@@ -13,18 +13,18 @@ class Testing:
     def __init__(self):
         self.root = "http://127.0.0.1:5000"
 
-    def test1(self):
+    def test1(self, user_id="759499444533067836"):
         """
         Purpose: To successfully get the weight from a user.
 
         Expected result: Printing the weight data to the terminal.
         """
-        testing_route = "/weight-759499444533067836/"
+        testing_route = f"/weight-{user_id}/"
 
         response = requests.get(f"{self.root}{testing_route}")
 
         print("PURPOSE: To successfully get the weight from a user.\n")
-        print(f"Weight data for user_id of 759499444533067836.")
+        print(f"Weight data for user_id of {user_id}.")
         print(f"Testing route: {self.root}{testing_route}\n")
 
         print(f"Data:\n{response.text}")
@@ -35,7 +35,7 @@ class Testing:
 
         Expected result: Getting a successful status code and printing the weight data for the user.
         """
-        testing_route = "/update_weight/"
+        testing_route = "/update-weight/"
         testing_data = {
             "user_id": "759499444533067836",
             "weight": "190"
@@ -57,7 +57,7 @@ class Testing:
 
         Expected result: An error on the terminal.
         """
-        testing_route = "/update_weight/"
+        testing_route = "/update-weight/"
         testing_data = {
             "weight": "190"
         }
@@ -78,7 +78,7 @@ class Testing:
 
         Expected result: An error on the terminal.
         """
-        testing_route = "/update_weight/"
+        testing_route = "/update-weight/"
         testing_data = {
             "user_id": "759499444533067836",
         }
@@ -98,7 +98,7 @@ class Testing:
 
         Expected result: An error on the terminal.
         """
-        testing_route = "/update_weight/"
+        testing_route = "/update-weight/"
         testing_data = {
             "user_id": "759499444533067836",
             "weight": "190",
@@ -132,6 +132,23 @@ class Testing:
 
         print(f"Data:\n{response.text}")
 
+    def test7(self):
+        """
+        Purpose: To successfully create a new user.
+
+        Expected result: A new user to be created. Soon after, test1 with the new ID will run.
+        """
+        testing_route = "/new-user/"
+        testing_data = {"user_id": "2438057320957"}
+
+        response = requests.post(f"{self.root}{testing_route}", json=testing_data)
+
+        print("PURPOSE: To successfully create a new user.\n")
+
+        print(f"Data:\n{response.text}")
+        print("-" * 20)
+        Testing().test1(user_id="2438057320957")
+
 
 print("-" * 20)
 Testing().test1()
@@ -146,3 +163,4 @@ Testing().test5()
 print("-" * 20)
 Testing().test6()
 print("-" * 20)
+Testing().test7()

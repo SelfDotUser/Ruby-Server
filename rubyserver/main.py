@@ -16,7 +16,7 @@ def get_weight(user_id):
     return DataManager.get_user_weight(escape(user_id).striptags(), True)
 
 
-@app.route("/update_weight/", methods=["POST"])
+@app.route("/update-weight/", methods=["POST"])
 def post_weight():
     """
     Using the UserID provided in the link and a bytes dictionary with the UserID, weight, and current date/time, this
@@ -27,6 +27,6 @@ def post_weight():
     return DataManager.record_weight(request.data)
 
 
-@app.route("/new_user/", methods=["POST"])
+@app.route("/new-user/", methods=["POST"])
 def new_user():
     return DataManager.new_user(request.data)

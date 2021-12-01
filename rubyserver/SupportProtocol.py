@@ -263,17 +263,23 @@ class DataManager:
         dictionary = ConvertManager.bytes_to_dictionary(data)
         user_id = dictionary["user_id"]
 
-        frame = DataManager.return_dataframe()
+        if not DataManager.user_check(user_id, False):
+            frame = DataManager.return_dataframe()
 
-        length = len(frame.index.values)
-        frame[user_id] = [0.0 for i in range(0, length)]
+            length = len(frame.index.values)
+            frame[user_id] = [0.0 for i in range(0, length)]
 
-        frame.to_csv(toFile, index=True, index_label="Date")
+            if not isPublic:
+                frame.to_csv(toFile, index=True, index_label="Date")
+            else:
+                AWSManager().update_file(toFile, frame.to_csv(index=True, index_label="Date"), "str")
 
-        returning_data = {"status": 200}
+            returning_data = {"status": 200}
 
-        return ConvertManager.dictionary_to_bytes(returning_data)
-
+            return ConvertManager.dictionary_to_bytes(returning_data)
+        else:
+            returning_data = {"status": f"ERROR: User {user_id} already exists."}
+            return ConvertManager.dictionary_to_bytes(returning_data)
 
 
 class ConvertManager:
