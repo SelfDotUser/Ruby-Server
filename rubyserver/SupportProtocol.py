@@ -40,6 +40,10 @@ class TimeManager:
 
         return current_time
 
+    def current_month(self):
+        month = self.pst.month if self.pst.month >= 10 else f"0{self.pst.month}"
+        return f"{self.pst.year}-{month}"
+
     @staticmethod
     def get_days_in_month(year: int, month: int):
         """
@@ -233,7 +237,7 @@ class DataManager:
 
         frame = DataManager.return_dataframe()
         dates = frame.index.values
-        data = {"weight": {}, "status": 200}
+        data = {"weight": {}, "status": 200, "current_month": TimeManager().current_month()}
 
         for index, value in enumerate(frame.loc[:, user_id]):
             data["weight"][dates[index]] = value
