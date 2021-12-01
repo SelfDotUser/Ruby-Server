@@ -12,6 +12,7 @@ pandas = "*"
 python-dotenv = "*"
 boto3 = "*"
 requests = "*"
+numpy = "*"
 
 [dev-packages]
 

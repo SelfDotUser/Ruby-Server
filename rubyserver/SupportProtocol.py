@@ -258,7 +258,7 @@ class DataManager:
             successful = False
 
         for key in dictionary:
-            if key is not "user_id":
+            if key != "user_id":
                 data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
