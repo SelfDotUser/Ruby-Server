@@ -25,3 +25,8 @@ def post_weight():
     :return: A success/error message.
     """
     return DataManager.record_weight(request.data)
+
+
+@app.route("/new_user/", methods=["POST"])
+def new_user():
+    return DataManager.new_user(request.data)

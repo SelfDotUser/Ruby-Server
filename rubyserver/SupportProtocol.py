@@ -258,6 +258,23 @@ class DataManager:
         else:
             return False
 
+    @staticmethod
+    def new_user(data: bytes):
+        dictionary = ConvertManager.bytes_to_dictionary(data)
+        user_id = dictionary["user_id"]
+
+        frame = DataManager.return_dataframe()
+
+        length = len(frame.index.values)
+        frame[user_id] = [0.0 for i in range(0, length)]
+
+        frame.to_csv(toFile, index=True, index_label="Date")
+
+        returning_data = {"status": 200}
+
+        return ConvertManager.dictionary_to_bytes(returning_data)
+
+
 
 class ConvertManager:
     """
