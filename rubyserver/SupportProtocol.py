@@ -253,6 +253,21 @@ class DataManager:
     @staticmethod
     def new_user(data: bytes):
         dictionary = ConvertManager.bytes_to_dictionary(data)
+        data_to_return = {}
+        successful = True
+
+        if "user_id" not in dictionary:
+            data_to_return["status"] = "ERROR: 'user_id' must be included."
+            successful = False
+
+        for key in dictionary:
+            if key is not "user_id":
+                data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
+                successful = False
+
+        if not successful:
+            return ConvertManager.dictionary_to_bytes(data_to_return)
+
         user_id = dictionary["user_id"]
 
         if not DataManager.user_check(user_id):
@@ -270,7 +285,7 @@ class DataManager:
 
             return ConvertManager.dictionary_to_bytes(returning_data)
         else:
-            returning_data = {"status": f"ERROR: User {user_id} already exists."}
+            returning_data = {"status": f"ERROR: User '{user_id}' already exists."}
             return ConvertManager.dictionary_to_bytes(returning_data)
 
 
