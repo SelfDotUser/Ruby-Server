@@ -149,6 +149,25 @@ class DataManager:
         else:
             return data
 
+    @staticmethod
+    def user_check(user_id: str, create: bool):
+        assert type(user_id) is str, '"user_id" must be a string.'
+        assert type(create) is bool, '"create" must be a boolean.'
+
+        frame = DataManager.return_dataframe()
+
+        if user_id in frame.columns.values:
+            return True
+        elif user_id not in frame.columns.values and create:
+            length = len(frame.index.values)
+            frame[user_id] = [0.0 for i in range(0, length)]
+
+            frame.to_csv(toFile, index=True, index_label="Date")
+
+            return True
+        else:
+            return False
+
 
 class ConvertManager:
     """
@@ -174,6 +193,3 @@ class ConvertManager:
         """
 
         return json.dumps(data_to_convert, indent=2).encode('utf-8')
-
-
-print(DataManager.get_user_weight("Carlos"))
