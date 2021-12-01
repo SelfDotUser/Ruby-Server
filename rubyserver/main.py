@@ -25,9 +25,3 @@ def post_weight():
     :return: A success/error message.
     """
     return DataManager.record_weight(request.data)
-
-
-sample_post = {
-    "user_id": "Carlos",
-    "weight": "190"
-}
