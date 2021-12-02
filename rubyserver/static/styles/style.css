@@ -1,0 +1,85 @@
+.Body {
+    margin:0;
+    background-color:rgb(42, 42, 42)
+}
+
+.Header {
+    overflow:hidden;
+    background-color:green;
+    font-family:'Courier New', Courier, monospace;
+    color:rgb(42, 42, 42);
+}
+
+.Header img {
+    width:80px;
+    height:auto;
+    margin:auto;
+    vertical-align:middle;
+    padding:20px;
+}
+
+.Header img:hover {
+    cursor:pointer;
+}
+
+.Header h1 {
+    display:inline-block;
+    font-size:50px;
+    margin:auto;
+    vertical-align:middle;
+}
+
+.Header ul{
+    overflow:hidden;
+}
+
+.Header a{
+    color:black;
+    text-decoration: none;
+    display:inline-block;
+    padding:12px 20px;
+    margin:auto;
+}
+
+.Header a:hover{
+    background-color:darkgreen;
+    transition: background-color 0.2s ease-in-out;
+    text-decoration:none;
+    cursor:pointer;
+}
+
+
+.Content {
+    background-color:rgb(132,202,128);
+    padding:20px;
+    font-family:'Courier New', Courier, monospace;
+}
+
+.Content img {
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width: 50%;
+    height:100px;
+    width:auto;
+}
+
+#content-div {
+    height:200px;
+}
+
+.Content img:hover {
+    cursor:pointer;
+}
+
+
+.Footer {
+    background-color:rgb(42, 42, 42);
+    padding:40px;
+}
+
+.Footer h6 {
+    margin:auto;
+    color:white;
+    font-family:Arial, Helvetica, sans-serif;
+}

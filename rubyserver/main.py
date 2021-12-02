@@ -1,4 +1,4 @@
-from flask import Flask, request
+from flask import Flask, request, render_template
 from markupsafe import escape
 from rubyserver.SupportProtocol import DataManager
 
@@ -30,3 +30,13 @@ def post_weight():
 @app.route("/new-user/", methods=["POST"])
 def new_user():
     return DataManager.new_user(request.data)
+
+
+@app.route("/", methods=["GET"])
+def index():
+    return render_template('/index.html')
+
+
+@app.route("/about", methods=["GET"])
+def index():
+    return render_template('/about.html')
