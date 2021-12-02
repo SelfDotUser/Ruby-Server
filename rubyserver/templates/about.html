@@ -3,21 +3,21 @@
     <head>
         <title>About Ruby</title>
         <meta name="description" content="What is the Ruby tool anyways?">
-        <link rel="icon" href="./Images/logo_transparent.png">
+        <link rel="icon" href="{{ url_for('static', filename='images/logo_transparent.png') }}">
         <meta name="author" content="Carlos Valdez">
 
         <meta charset="UTF-8">
-        <link rel="stylesheet" href="./style.css">
+        <link rel="stylesheet" href= "{{ url_for('static',filename='styles/style.css') }}">
     </head>
 
 
     <body class="Body">
         <div class="Header">
-            <img onclick="document.location='index.html'" src="./Images/logo_transparent.png">
+            <img onclick="document.location='./'" src="/static/images/logo_transparent.png">
             <h1>Ruby</h1>
 
             <ul>
-                <a href="about.html" style="background-color:darkgreen;">About</a>
+                <a href="./about.html" style="background-color:darkgreen;">About</a>
                 <a href="https://discord.gg/CQdXH8aSb6">Discord</a>
             </ul>
         </div>
@@ -28,6 +28,11 @@
             <p style="padding-left:150px; padding-right:150px">&emsp;Ruby is a rather simple tool: it documents weight. The Ruby project began mostly to test Carlos’ abilities in things he’s tried to learn for the last year: A combination of working with the Python, JavaScript, and Swift languages, as well as the development of REST APIs, websites, nodeJS applications, and iOS applications. Combining everything he’s learned for the last year, Carlos managed to create a REST API that can be used by developers, a Discord bot, and (soon to come) an iOS app. Also this neat website!</p>
             <p style="padding-left:150px; padding-right:150px">&emsp;As the pandemic was raging on, Carlos found it useful to document his weight in graphs. He had used the Apple Health app to document his weight, however, he now wanted to challenge himself to create useful applications for people outside of the Apple ecosystem that also wanted the pleasure of documenting weight on any operating system.</p>
             <p style="padding-left:150px; padding-right:150px">&emsp;Ruby is here to close that gap.</p>
+            <br>
+
+            <h1 style="text-align:center;">Document your weight using the Ruby tool!</h1>
+
+            <img style="text-align:center;" onclick="document.location='https://discord.gg/CQdXH8aSb6'" src="/static/images/discord.png">
         </div>
 
 

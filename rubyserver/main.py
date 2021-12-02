@@ -2,7 +2,7 @@ from flask import Flask, request, render_template
 from markupsafe import escape
 from rubyserver.SupportProtocol import DataManager
 
-app = Flask(__name__, static_folder="./static/")
+app = Flask(__name__)
 
 
 @app.route("/weight-<user_id>/", methods=["GET"])
