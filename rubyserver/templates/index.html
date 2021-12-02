@@ -3,7 +3,7 @@
     <head>
         <title>Ruby</title>
         <meta name="description" content="Try the Ruby tool on Discord!">
-        <link rel="icon" href="{{ url_for('static', filename='/logo_transparent.png') }}">
+        <link rel="icon" href="{{ url_for('static', filename='images/logo_transparent.png') }}">
         <meta name="author" content="Carlos Valdez">
 
         <meta charset="UTF-8">
@@ -13,7 +13,7 @@
 
     <body class="Body">
         <div class="Header">
-            <img onclick=`document.location="./index.html"` href="../static/logo_transparent.png">
+            <img onclick=`document.location="./index.html"` href=url_for('static')>
             <h1>Ruby</h1>
 
             <ul>
@@ -26,7 +26,7 @@
         <div class="Content" id="content-div">
             <h1 style="text-align:center;">Document your weight using the Ruby tool!</h1>
 
-            <img style="text-align:center;" onclick="document.location='https://discord.gg/CQdXH8aSb6'" href="../static/discord.png">
+            <img style="text-align:center;" onclick="document.location='https://discord.gg/CQdXH8aSb6'" href="{{ url_for('static', filename='images/discord.png') }}">
         </div>
 
         <div class="Footer">
