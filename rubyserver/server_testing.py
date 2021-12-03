@@ -149,7 +149,7 @@ class Testing:
         print("-" * 20)
         Testing().test1(user_id="34098523890")
 
-
+"""
 print("-" * 20)
 Testing().test1()
 print("-" * 20)
@@ -164,3 +164,4 @@ print("-" * 20)
 Testing().test6()
 print("-" * 20)
 Testing().test7()
+"""
