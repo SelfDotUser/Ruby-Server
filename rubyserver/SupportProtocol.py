@@ -15,7 +15,6 @@ isPublic = True
 
 if not isPublic:
     load_dotenv()
-
 toFile = os.getenv("NAME_OF_CSV")
 
 
@@ -211,19 +210,26 @@ class DataManager:
         else:
             AWSManager().update_file(os.getenv("NAME_OF_CSV"), dataframe.to_csv(index=True, index_label="Date"), "str")
 
-        data_to_return = DataManager.get_user_weight(user_id, False)
+        data_to_return = DataManager.get_user_weight(user_id, "-", False)
 
         return ConvertManager.dictionary_to_bytes(data_to_return)
 
     @staticmethod
-    def get_user_weight(user_id: str, convert: bool):
+    def get_user_weight(user_id: str, month_req: str, convert: bool):
         """
         Returns the weight for the specified user.
         :param user_id: String
+        :param month_req: String
         :param convert: Boolean, specify if you want it converted or not.
         :return: Dictionary of the data for the specified user.
         """
         assert type(user_id) is str, 'For performance, please set "user_id" to a string.'
+
+        """
+        How "month" works:
+        "-" means current month
+        Getting any other month must be in the "xxxx-xx" format.
+        """
 
         user_exists = DataManager.user_check(user_id)
 
@@ -237,10 +243,20 @@ class DataManager:
 
         frame = DataManager.return_dataframe()
         dates = frame.index.values
-        data = {"weight": {}, "status": 200, "current_month": TimeManager().current_month()}
+        data = {"weight": {}, "status": 200}
+
+        if month_req == "-":
+            month = TimeManager().current_month()
+        else:
+            month_data = month_req.split("-")
+            if len(month_data) > 0 and len(month_data[0]) == 4 and len(month_data[1]) == 2:
+                month = month_req[:8]
+            else:
+                return ConvertManager.dictionary_to_bytes({"status": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."})
 
         for index, value in enumerate(frame.loc[:, user_id]):
-            data["weight"][dates[index]] = value
+            if month in dates[index]:
+                data["weight"][dates[index]] = value
 
         if convert:
             return ConvertManager.dictionary_to_bytes(data)

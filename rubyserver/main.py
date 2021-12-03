@@ -5,15 +5,15 @@ from rubyserver.SupportProtocol import DataManager
 app = Flask(__name__)
 
 
-@app.route("/weight-<user_id>/", methods=["GET"])
-def get_weight(user_id):
+@app.route("/weight/<user_id>/<month>/", methods=["GET"])
+def get_weight(user_id, month):
     """
     Using the UserID provided in the link, this would return a JSON file with the user data and the weight during the
     month.
 
     :return: Bytes JSON data
     """
-    return DataManager.get_user_weight(escape(user_id).striptags(), True)
+    return DataManager.get_user_weight(escape(user_id).striptags(), escape(month).striptags(), True)
 
 
 @app.route("/update-weight/", methods=["POST"])
