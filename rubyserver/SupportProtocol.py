@@ -174,6 +174,9 @@ class DataManager:
                 data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
+        if not successful:
+            return ConvertManager.dictionary_to_bytes(data_to_return)
+
         user_id = data["user_id"]
 
         user_exists = DataManager.user_check(user_id)
