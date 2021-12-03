@@ -7,7 +7,7 @@
         <meta name="author" content="Carlos Valdez">
 
         <meta charset="UTF-8">
-        <link rel="stylesheet" href= "{{ url_for('static',filename='styles/style.css') }}">
+        <link rel="stylesheet" type="text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
     </head>
 
 
@@ -24,7 +24,7 @@
 
 
         <div class="Content" id="content-div">
-            <h1 style="text-align:center;">Document your weight using the Ruby tool!</h1>
+            <h1 style="text-align:center; padding-top:80px">Document your weight using the Ruby tool!</h1>
 
             <img style="text-align:center;" onclick="document.location='https://discord.gg/CQdXH8aSb6'" src="/static/images/discord.png">
         </div>
@@ -34,11 +34,9 @@
         </div>
 
         <script>
-            var content = document.getElementById("content-div");
+            const height_by_content = document.body.clientHeight - 12;
 
-            const height = document.body.clientHeight;
-
-            console.log(content.style.height.toString())
+            document.getElementById("content-div").style.height = `${height_by_content}px`;
         </script>
     </body>
 </html>

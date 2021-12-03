@@ -60,12 +60,8 @@
     margin-left: auto;
     margin-right: auto;
     width: 50%;
-    height:100px;
+    height:80px;
     width:auto;
-}
-
-#content-div {
-    height:200px;
 }
 
 .Content img:hover {
