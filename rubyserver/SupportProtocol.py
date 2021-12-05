@@ -10,12 +10,11 @@ import os
 import boto3
 import io
 
-# TODO: Change to True once you finish.
 isPublic = True
 
 if not isPublic:
     load_dotenv()
-load_dotenv()
+
 toFile = os.getenv("NAME_OF_CSV")
 toAuth = os.getenv("NAME_OF_AUTH")
 
@@ -216,7 +215,7 @@ class DataManager:
         else:
             AWSManager().update_file(os.getenv("NAME_OF_CSV"), dataframe.to_csv(index=True, index_label="Date"), "str")
 
-        data_to_return = DataManager.get_user_weight(user_id, "-", False)
+        data_to_return = DataManager.get_user_weight(user_id, "-", False, passcode)
 
         return ConvertManager.dictionary_to_bytes(data_to_return)
 
@@ -265,7 +264,9 @@ class DataManager:
             if len(month_data) > 0 and len(month_data[0]) == 4 and len(month_data[1]) == 2:
                 month = month_req[:8]
             else:
-                return ConvertManager.dictionary_to_bytes({"message": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."})
+                return ConvertManager.dictionary_to_bytes({
+                    "message": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."
+                })
 
         for index, value in enumerate(frame.loc[:, user_id]):
             if month in dates[index]:

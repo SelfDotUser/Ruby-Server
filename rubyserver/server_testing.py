@@ -22,8 +22,8 @@ class Testing:
     def test2(self):
         full = f"{self.root}/api/new-user/"
 
-        response = requests.post(full, json={"user_id": str(random.randint(1000000000, 9999999999)), "passcode": str(random.randint(100000, 999999))})
+        response = requests.post(full, json={"user_id": str(random.randint(1000000000, 9999999999)),
+                                             "passcode": str(random.randint(100000, 999999))})
         print(response.text)
 
 
-Testing().test1()
