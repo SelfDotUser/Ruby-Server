@@ -11,10 +11,11 @@ import boto3
 import io
 
 # TODO: Change to True once you finish.
-isPublic = False
+isPublic = True
 
 if not isPublic:
     load_dotenv()
+load_dotenv()
 toFile = os.getenv("NAME_OF_CSV")
 toAuth = os.getenv("NAME_OF_AUTH")
 
@@ -323,10 +324,8 @@ class DataManager:
                 f.close()
 
                 auth = dict(json.loads(content))
-                print(auth)
 
                 auth[user_id] = dictionary['passcode']
-                print(auth)
 
                 f = open(toAuth, "w")
                 f.write(json.dumps(auth))

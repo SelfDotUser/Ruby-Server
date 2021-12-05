@@ -26,4 +26,4 @@ class Testing:
         print(response.text)
 
 
-Testing().test2()
+Testing().test1()

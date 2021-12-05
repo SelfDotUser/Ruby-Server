@@ -13,7 +13,8 @@ def get_weight(user_id, month):
 
     :return: Bytes JSON data
     """
-    return DataManager.get_user_weight(escape(user_id).striptags(), escape(month).striptags(), True, request.authorization.password)
+    return DataManager.get_user_weight(escape(user_id).striptags(), escape(month).striptags(), True,
+                                       request.authorization.password)
 
 
 @app.route("/api/update-weight/", methods=["POST"])
