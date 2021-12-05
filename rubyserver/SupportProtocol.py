@@ -385,7 +385,7 @@ class AuthManager:
     @staticmethod
     def auth(username: str, passcode: str):
         if isPublic:
-            auth_d = dict(AWSManager().get_file(toAuth, "dict"))
+            auth_d: dict = AWSManager().get_file(toAuth, "dict")
         else:
             auth_d = json.loads(open(toAuth).read())
 
