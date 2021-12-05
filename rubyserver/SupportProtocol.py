@@ -10,12 +10,13 @@ import os
 import boto3
 import io
 
-
 isPublic = True
 
 if not isPublic:
     load_dotenv()
+
 toFile = os.getenv("NAME_OF_CSV")
+toAuth = os.getenv("NAME_OF_AUTH")
 
 
 class TimeManager:
@@ -151,7 +152,7 @@ class DataManager:
         return frame
 
     @staticmethod
-    def record_weight(data: bytes):
+    def record_weight(data: bytes, passcode: str):
         """
         Records the weight of the individual.
         """
@@ -162,23 +163,27 @@ class DataManager:
         # Checking if the data from the server is as specified in the documentation.
         # "user_id" and "weight" are the only and required things that should be in the data.
         if "user_id" not in data:
-            data_to_return["status"] = "ERROR: 'user_id' must be included."
+            data_to_return["message"] = "ERROR: 'user_id' must be included."
             successful = False
         elif "weight" not in data:
-            data_to_return["status"] = "ERROR: 'weight' must be included."
+            data_to_return["message"] = "ERROR: 'weight' must be included."
             successful = False
 
         for key in data:
             if key not in ("user_id", "weight"):
-                data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
+                data_to_return["message"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
         user_id = data["user_id"]
 
+        if not AuthManager.auth(user_id, passcode):
+            data_to_return = {"message": f"ERROR: Wrong passcode."}
+            successful = False
+
         user_exists = DataManager.user_check(user_id)
 
         if not user_exists:
-            data_to_return = {"status": f"ERROR: User '{user_id}' is not in the database."}
+            data_to_return = {"message": f"ERROR: User '{user_id}' is not in the database."}
             successful = False
 
         if not successful:
@@ -210,12 +215,12 @@ class DataManager:
         else:
             AWSManager().update_file(os.getenv("NAME_OF_CSV"), dataframe.to_csv(index=True, index_label="Date"), "str")
 
-        data_to_return = DataManager.get_user_weight(user_id, "-", False)
+        data_to_return = DataManager.get_user_weight(user_id, "-", False, passcode)
 
         return ConvertManager.dictionary_to_bytes(data_to_return)
 
     @staticmethod
-    def get_user_weight(user_id: str, month_req: str, convert: bool):
+    def get_user_weight(user_id: str, month_req: str, convert: bool, passcode: str):
         """
         Returns the weight for the specified user.
         :param user_id: String
@@ -231,10 +236,17 @@ class DataManager:
         Getting any other month must be in the "xxxx-xx" format.
         """
 
+        if not AuthManager.auth(user_id, passcode):
+            data = {"message": "ERROR: Wrong passcode."}
+            if convert:
+                return ConvertManager.dictionary_to_bytes(data)
+            else:
+                return data
+
         user_exists = DataManager.user_check(user_id)
 
         if not user_exists:
-            data = {"status": f"ERROR: User '{user_id}' is not in the database."}
+            data = {"message": f"ERROR: User '{user_id}' is not in the database."}
 
             if convert:
                 return ConvertManager.dictionary_to_bytes(data)
@@ -243,7 +255,7 @@ class DataManager:
 
         frame = DataManager.return_dataframe()
         dates = frame.index.values
-        data = {"weight": {}, "status": 200}
+        data = {"weight": {}, "message": "SUCCESS"}
 
         if month_req == "-":
             month = TimeManager().current_month()
@@ -252,7 +264,9 @@ class DataManager:
             if len(month_data) > 0 and len(month_data[0]) == 4 and len(month_data[1]) == 2:
                 month = month_req[:8]
             else:
-                return ConvertManager.dictionary_to_bytes({"status": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."})
+                return ConvertManager.dictionary_to_bytes({
+                    "message": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."
+                })
 
         for index, value in enumerate(frame.loc[:, user_id]):
             if month in dates[index]:
@@ -281,12 +295,15 @@ class DataManager:
         successful = True
 
         if "user_id" not in dictionary:
-            data_to_return["status"] = "ERROR: 'user_id' must be included."
+            data_to_return["message"] = "ERROR: 'user_id' must be included."
+            successful = False
+        elif "passcode" not in dictionary:
+            data_to_return['message'] = "ERROR: 'passcode' must be included."
             successful = False
 
         for key in dictionary:
-            if key != "user_id":
-                data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
+            if key not in ("user_id", "passcode"):
+                data_to_return["message"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
         if not successful:
@@ -302,14 +319,32 @@ class DataManager:
 
             if not isPublic:
                 frame.to_csv(toFile, index=True, index_label="Date")
+
+                f = open(toAuth)
+                content = f.read()
+                f.close()
+
+                auth = dict(json.loads(content))
+
+                auth[user_id] = dictionary['passcode']
+
+                f = open(toAuth, "w")
+                f.write(json.dumps(auth))
+                f.close()
             else:
                 AWSManager().update_file(toFile, frame.to_csv(index=True, index_label="Date"), "str")
 
-            returning_data = {"status": 200}
+                auth = AWSManager().get_file(toAuth, "dict")
+
+                auth[user_id] = dictionary['passcode']
+
+                AWSManager().update_file(toAuth, auth, "dict")
+
+            returning_data = {"message": "SUCCESS"}
 
             return ConvertManager.dictionary_to_bytes(returning_data)
         else:
-            returning_data = {"status": f"ERROR: User '{user_id}' already exists."}
+            returning_data = {"message": f"ERROR: User '{user_id}' already exists."}
             return ConvertManager.dictionary_to_bytes(returning_data)
 
 
@@ -344,3 +379,14 @@ class ConvertManager:
     @staticmethod
     def string_to_bytes(data_to_convert: str):
         return data_to_convert.encode('utf-8')
+
+
+class AuthManager:
+    @staticmethod
+    def auth(username: str, passcode: str):
+        if isPublic:
+            auth_d: dict = AWSManager().get_file(toAuth, "dict")
+        else:
+            auth_d = json.loads(open(toAuth).read())
+
+        return True if auth_d[username] == passcode else False
