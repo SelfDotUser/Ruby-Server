@@ -14,7 +14,7 @@ class Testing:
         self.root = "http://127.0.0.1:5000"
 
     def test1(self):
-        full = f"{self.root}/api/weight/759499444533067836/2021-11/"
+        full = f"{self.root}/api/weight/2021-11/"
 
         response = requests.get(full, auth=HTTPBasicAuth('759499444533067836', '441022'))
         print(response.text)
