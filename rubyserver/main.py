@@ -13,8 +13,7 @@ def get_weight(user_id, month):
 
     :return: Bytes JSON data
     """
-    # TODO: print(request.authorization.password)
-    return DataManager.get_user_weight(escape(user_id).striptags(), escape(month).striptags(), True)
+    return DataManager.get_user_weight(escape(user_id).striptags(), escape(month).striptags(), True, request.authorization.password)
 
 
 @app.route("/api/update-weight/", methods=["POST"])
@@ -25,7 +24,7 @@ def post_weight():
 
     :return: A success/error message.
     """
-    return DataManager.record_weight(request.data)
+    return DataManager.record_weight(request.data, request.authorization.password)
 
 
 @app.route("/api/new-user/", methods=["POST"])

@@ -16,6 +16,7 @@ isPublic = False
 if not isPublic:
     load_dotenv()
 toFile = os.getenv("NAME_OF_CSV")
+toAuth = os.getenv("NAME_OF_AUTH")
 
 
 class TimeManager:
@@ -151,7 +152,7 @@ class DataManager:
         return frame
 
     @staticmethod
-    def record_weight(data: bytes):
+    def record_weight(data: bytes, passcode: str):
         """
         Records the weight of the individual.
         """
@@ -174,6 +175,10 @@ class DataManager:
                 successful = False
 
         user_id = data["user_id"]
+
+        if not AuthManager.auth(user_id, passcode):
+            data_to_return = {"message": f"ERROR: Wrong passcode."}
+            successful = False
 
         user_exists = DataManager.user_check(user_id)
 
@@ -215,7 +220,7 @@ class DataManager:
         return ConvertManager.dictionary_to_bytes(data_to_return)
 
     @staticmethod
-    def get_user_weight(user_id: str, month_req: str, convert: bool):
+    def get_user_weight(user_id: str, month_req: str, convert: bool, passcode: str):
         """
         Returns the weight for the specified user.
         :param user_id: String
@@ -230,6 +235,13 @@ class DataManager:
         "-" means current month
         Getting any other month must be in the "xxxx-xx" format.
         """
+
+        if not AuthManager.auth(user_id, passcode):
+            data = {"message": "ERROR: Wrong passcode."}
+            if convert:
+                return ConvertManager.dictionary_to_bytes(data)
+            else:
+                return data
 
         user_exists = DataManager.user_check(user_id)
 
@@ -283,9 +295,12 @@ class DataManager:
         if "user_id" not in dictionary:
             data_to_return["message"] = "ERROR: 'user_id' must be included."
             successful = False
+        elif "passcode" not in dictionary:
+            data_to_return['message'] = "ERROR: 'passcode' must be included."
+            successful = False
 
         for key in dictionary:
-            if key != "user_id":
+            if key not in ("user_id", "passcode"):
                 data_to_return["message"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
@@ -302,8 +317,28 @@ class DataManager:
 
             if not isPublic:
                 frame.to_csv(toFile, index=True, index_label="Date")
+
+                f = open(toAuth)
+                content = f.read()
+                f.close()
+
+                auth = dict(json.loads(content))
+                print(auth)
+
+                auth[user_id] = dictionary['passcode']
+                print(auth)
+
+                f = open(toAuth, "w")
+                f.write(json.dumps(auth))
+                f.close()
             else:
                 AWSManager().update_file(toFile, frame.to_csv(index=True, index_label="Date"), "str")
+
+                auth = AWSManager().get_file(toAuth, "dict")
+
+                auth[user_id] = dictionary['passcode']
+
+                AWSManager().update_file(toAuth, auth, "dict")
 
             returning_data = {"message": "SUCCESS"}
 
@@ -344,3 +379,14 @@ class ConvertManager:
     @staticmethod
     def string_to_bytes(data_to_convert: str):
         return data_to_convert.encode('utf-8')
+
+
+class AuthManager:
+    @staticmethod
+    def auth(username: str, passcode: str):
+        if isPublic:
+            auth_d = dict(AWSManager().get_file(toAuth, "dict"))
+        else:
+            auth_d = json.loads(open(toAuth).read())
+
+        return True if auth_d[username] == passcode else False
