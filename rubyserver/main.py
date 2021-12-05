@@ -5,7 +5,7 @@ from rubyserver.SupportProtocol import DataManager
 app = Flask(__name__)
 
 
-@app.route("/weight/<user_id>/<month>/", methods=["GET"])
+@app.route("/api/weight/<user_id>/<month>/", methods=["GET"])
 def get_weight(user_id, month):
     """
     Using the UserID provided in the link, this would return a JSON file with the user data and the weight during the
@@ -16,7 +16,7 @@ def get_weight(user_id, month):
     return DataManager.get_user_weight(escape(user_id).striptags(), escape(month).striptags(), True)
 
 
-@app.route("/update-weight/", methods=["POST"])
+@app.route("/api/update-weight/", methods=["POST"])
 def post_weight():
     """
     Using the UserID provided in the link and a bytes dictionary with the UserID, weight, and current date/time, this
@@ -27,7 +27,7 @@ def post_weight():
     return DataManager.record_weight(request.data)
 
 
-@app.route("/new-user/", methods=["POST"])
+@app.route("/api/new-user/", methods=["POST"])
 def new_user():
     return DataManager.new_user(request.data)
 
