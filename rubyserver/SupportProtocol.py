@@ -10,8 +10,8 @@ import os
 import boto3
 import io
 
-
-isPublic = True
+# TODO: Change to True once you finish.
+isPublic = False
 
 if not isPublic:
     load_dotenv()
@@ -162,15 +162,15 @@ class DataManager:
         # Checking if the data from the server is as specified in the documentation.
         # "user_id" and "weight" are the only and required things that should be in the data.
         if "user_id" not in data:
-            data_to_return["status"] = "ERROR: 'user_id' must be included."
+            data_to_return["message"] = "ERROR: 'user_id' must be included."
             successful = False
         elif "weight" not in data:
-            data_to_return["status"] = "ERROR: 'weight' must be included."
+            data_to_return["message"] = "ERROR: 'weight' must be included."
             successful = False
 
         for key in data:
             if key not in ("user_id", "weight"):
-                data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
+                data_to_return["message"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
         user_id = data["user_id"]
@@ -178,7 +178,7 @@ class DataManager:
         user_exists = DataManager.user_check(user_id)
 
         if not user_exists:
-            data_to_return = {"status": f"ERROR: User '{user_id}' is not in the database."}
+            data_to_return = {"message": f"ERROR: User '{user_id}' is not in the database."}
             successful = False
 
         if not successful:
@@ -234,7 +234,7 @@ class DataManager:
         user_exists = DataManager.user_check(user_id)
 
         if not user_exists:
-            data = {"status": f"ERROR: User '{user_id}' is not in the database."}
+            data = {"message": f"ERROR: User '{user_id}' is not in the database."}
 
             if convert:
                 return ConvertManager.dictionary_to_bytes(data)
@@ -243,7 +243,7 @@ class DataManager:
 
         frame = DataManager.return_dataframe()
         dates = frame.index.values
-        data = {"weight": {}, "status": 200}
+        data = {"weight": {}, "message": "SUCCESS"}
 
         if month_req == "-":
             month = TimeManager().current_month()
@@ -252,7 +252,7 @@ class DataManager:
             if len(month_data) > 0 and len(month_data[0]) == 4 and len(month_data[1]) == 2:
                 month = month_req[:8]
             else:
-                return ConvertManager.dictionary_to_bytes({"status": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."})
+                return ConvertManager.dictionary_to_bytes({"message": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."})
 
         for index, value in enumerate(frame.loc[:, user_id]):
             if month in dates[index]:
@@ -281,12 +281,12 @@ class DataManager:
         successful = True
 
         if "user_id" not in dictionary:
-            data_to_return["status"] = "ERROR: 'user_id' must be included."
+            data_to_return["message"] = "ERROR: 'user_id' must be included."
             successful = False
 
         for key in dictionary:
             if key != "user_id":
-                data_to_return["status"] = f"ERROR: '{key}' is unrecognized. Please remove it."
+                data_to_return["message"] = f"ERROR: '{key}' is unrecognized. Please remove it."
                 successful = False
 
         if not successful:
@@ -305,11 +305,11 @@ class DataManager:
             else:
                 AWSManager().update_file(toFile, frame.to_csv(index=True, index_label="Date"), "str")
 
-            returning_data = {"status": 200}
+            returning_data = {"message": "SUCCESS"}
 
             return ConvertManager.dictionary_to_bytes(returning_data)
         else:
-            returning_data = {"status": f"ERROR: User '{user_id}' already exists."}
+            returning_data = {"message": f"ERROR: User '{user_id}' already exists."}
             return ConvertManager.dictionary_to_bytes(returning_data)
 
 

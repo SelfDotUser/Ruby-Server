@@ -13,6 +13,7 @@ def get_weight(user_id, month):
 
     :return: Bytes JSON data
     """
+    # TODO: print(request.authorization.password)
     return DataManager.get_user_weight(escape(user_id).striptags(), escape(month).striptags(), True)
 
 
