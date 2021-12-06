@@ -34,11 +34,11 @@ Returns weight data of a user.
 
 |Error Message|Suggestion|
 |-----|-----|
-|User `user_id` is not in the database.| The user does not exist. Try creating it using `/new-user/` and try again. |
+|User `user_id` is not in the database.| The user does not exist. Try creating it using `/api/new-user/` and try again. |
 |Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH).|The `MONTH_REQUESTED` part of the link must be either "-" for the current month or the format requested by the error.|
 
 ## `POST` /api/update-weight/
-Updates an individual’s weight data and returns weight data similar to `api/weight/-/`.
+Updates an individual’s weight data and returns weight data similar to `/api/weight/-/`.
 <br>
 Your program must provide JSON data to use this URL.
 
