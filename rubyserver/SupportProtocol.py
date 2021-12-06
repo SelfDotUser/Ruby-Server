@@ -20,13 +20,16 @@ toAuth: str = os.getenv("NAME_OF_AUTH")
 
 
 class TimeManager:
+    """
+    The TimeManager class keeps track of time. This uses Pacific Standard Time.
+    """
     def __init__(self):
         utc_now = pytz.utc.localize(datetime.datetime.utcnow())
         self.pst: datetime.datetime = utc_now.astimezone(pytz.timezone('US/Pacific'))
 
     def get_date(self) -> str:
         """
-        Returns the date in the PST timezone. "January 1, 2000" format.
+        :return: The date in the PST timezone. "January 1, 2000" format.
         """
         current_day: str = self.pst.strftime("%B %d, %Y")
 
@@ -34,31 +37,32 @@ class TimeManager:
 
     def get_time(self) -> str:
         """
-        Returns the current time in the PST timezone. "01:00 AM" format.
+        :return: The time in the PST timezone. "01:00 AM" format.
         """
         current_time: str = self.pst.strftime('%I:%M %p')
 
         return current_time
 
     def current_month(self) -> str:
+        """
+        :return: The current month in "xxxx-xx" format.
+        """
         month = self.pst.month if self.pst.month >= 10 else f"0{self.pst.month}"
         return f"{self.pst.year}-{month}"
 
     @staticmethod
     def get_days_in_month(year: int, month: int) -> int:
         """
-        Returns the number of days there are in the specified month in the specified year.
-
-        :return: Integer
+        :return: The number of days there are in the specified month in the specified year.
         """
         return calendar.monthrange(year, month)[1]
 
 
 class AWSManager:
+    """
+    The AWSManager gets/updates files from Amazon Web Services.
+    """
     def __init__(self):
-        """
-        Initiate AWS S3 credentials.
-        """
         self.s3 = boto3.resource(
             service_name='s3',
             region_name=os.getenv("AWS_REGION"),
@@ -71,8 +75,9 @@ class AWSManager:
     def update_file(self, file: str, data) -> None:
         """
         Gets content from a file, deletes the original, and uploads the updated version.
-        :param file: Name of file.
-        :param data: Dictionary of updated data.
+
+        :param file: Name of file
+        :param data: Dictionary or string of the data
         """
         assert type(data) in (str, dict), "data must be either str or dict."
 
@@ -96,9 +101,9 @@ class AWSManager:
 
     def get_file(self, file: str) -> bytes:
         """
-        Returns the content of a file.
-        :param file: Name of file.
-        :return: Dictionary
+        :param file: Name of file
+
+        :return: The data in bytes
         """
         bytes_data: bytes = self.s3.Bucket(self.bucket_name).Object(file).get()['Body'].read()
 
@@ -106,11 +111,13 @@ class AWSManager:
 
 
 class DataManager:
+    """
+    The DataManager keeps track of data within the SupportProtocol.
+    """
     @staticmethod
     def create_frame() -> None:
         """
-        This is for developmental purposes only.
-        Creates a brand new set for testing.
+        This is for developmental purposes only. Creates a brand new set for testing.
         """
         assert not isPublic, '"isPublic" is set to True. This is a development function.'
 
@@ -128,6 +135,11 @@ class DataManager:
 
     @staticmethod
     def return_dataframe() -> pd.DataFrame:
+        """
+        Converts a .csv from AWS and makes it into a DataFrame object.
+
+        :return: DataFrame object of the AWS user weight data
+        """
         if isPublic:
             data_string: str = ConvertManager.bytes_to_string(AWSManager().get_file(toFile))
             f = io.StringIO(data_string)
@@ -142,6 +154,11 @@ class DataManager:
     def record_weight(data: bytes, passcode: str) -> bytes:
         """
         Records the weight of the individual.
+
+        :param data: JSON data given from the outside world
+        :param passcode: User passcode for authentication
+
+        :return: Server response in bytes
         """
         data = ConvertManager.bytes_to_dictionary(data)
         data_to_return: dict[str, str] = {}
@@ -206,6 +223,14 @@ class DataManager:
 
     @staticmethod
     def get_user_weight(user_id: str, month_req: str, passcode: str) -> bytes:
+        """
+        Returns the user weight according to the month specified.
+
+        :param user_id: The user id
+        :param month_req: The month the program is requesting. "-" for this month, "xxxx-xx" format for any other.
+        :param passcode: The user passcode
+        :return: Server response in bytes
+        """
         assert type(user_id) is str, 'For performance, please set "user_id" to a string.'
 
         if not AuthManager.auth(user_id, passcode):
@@ -243,6 +268,12 @@ class DataManager:
 
     @staticmethod
     def user_check(user_id: str) -> bool:
+        """
+        Checks if a user exists.
+
+        :param user_id: The user id
+        :return: Boolean
+        """
         assert type(user_id) is str, '"user_id" must be a string.'
 
         frame = DataManager.return_dataframe()
@@ -251,6 +282,12 @@ class DataManager:
 
     @staticmethod
     def new_user(data: bytes) -> bytes:
+        """
+        Creates a new user.
+
+        :param data: JSON data from the outside world
+        :return: Server response in bytes
+        """
         dictionary = ConvertManager.bytes_to_dictionary(data)
         data_to_return = {}
         successful = True
@@ -310,16 +347,37 @@ class DataManager:
 
 
 class ConvertManager:
+    """
+    The ConvertManager helps convert things to bytes and vise versa.
+    """
     @staticmethod
     def bytes_to_string(data_to_convert: bytes) -> str:
+        """
+        Converts bytes to strings.
+
+        :param data_to_convert: Data in bytes
+        :return: Data as a string
+        """
         return data_to_convert.decode('utf-8')
 
     @staticmethod
     def bytes_to_dictionary(data_to_convert: bytes) -> dict:
+        """
+        Converts bytes to a dictionary.
+
+        :param data_to_convert: Data in bytes
+        :return: Data as a dictionary
+        """
         return ast.literal_eval(data_to_convert.decode('utf-8'))
 
     @staticmethod
     def to_bytes(data_to_convert) -> bytes:
+        """
+        Converts either string or dictionary to bytes.
+
+        :param data_to_convert: Data in str/dict format
+        :return: Data in bytes
+        """
         assert type(data_to_convert) in (dict, str), "data must be either dict or str."
 
         if type(data_to_convert) == dict:
@@ -329,8 +387,18 @@ class ConvertManager:
 
 
 class AuthManager:
+    """
+    AuthManager manages authentication.
+    """
     @staticmethod
     def auth(username: str, passcode: str) -> bool:
+        """
+        Returns whether or not the username/passcode combination is valid.
+
+        :param username: username
+        :param passcode: passcode
+        :return: boolean
+        """
         if isPublic:
             auth_d: dict = ConvertManager.bytes_to_dictionary(AWSManager().get_file(toAuth))
         else:
