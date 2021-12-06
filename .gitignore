@@ -6,6 +6,5 @@ Pipfile
 .env
 dskjgn.csv
 Website
-README.md
 InternalDocs.md
 auth.json
