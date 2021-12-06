@@ -3,6 +3,10 @@
 # Ruby API
 Welcome to the Ruby API! Learn how to use weight data from Ruby in your projects.
 
+# Messages and Errors
+Every JSON response will include a `message` key that will be either “SUCCESS” or “ERROR: ” followed by the error 
+message. It is suggested that you inspect the `message` value for either “SUCCESS” or “ERROR”.
+
 # Authentication
 The Ruby server uses basic HTTP authentication. Since the only version of Ruby currently available is on Discord, users’
 username is their Discord user id. The bot provides their passcode. Your program will not get user weight data without the user id and the passcode.
@@ -12,9 +16,6 @@ username is their Discord user id. The bot provides their passcode. Your program
 |Error Message|Suggestion|
 |---|---|
 |Wrong passcode.|Ensure that the passcode is the passcode associated with the user id.|
-# Messages and Errors
-Every JSON response will include a `message` key that will be either “SUCCESS” or “ERROR: ” followed by the error 
-message. It is suggested that you inspect the `message` value for either “SUCCESS” or “ERROR”.
 
 # Documentation
 ## `GET` /api/weight/MONTH_REQUESTED/
