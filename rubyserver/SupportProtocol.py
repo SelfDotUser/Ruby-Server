@@ -1,7 +1,7 @@
 import ast
 import json
 import pytz
-from datetime import datetime
+import datetime
 import calendar
 import pandas as pd
 import random
@@ -15,37 +15,37 @@ isPublic = True
 if not isPublic:
     load_dotenv()
 
-toFile = os.getenv("NAME_OF_CSV")
-toAuth = os.getenv("NAME_OF_AUTH")
+toFile: str = os.getenv("NAME_OF_CSV")
+toAuth: str = os.getenv("NAME_OF_AUTH")
 
 
 class TimeManager:
     def __init__(self):
-        utc_now = pytz.utc.localize(datetime.utcnow())
-        self.pst = utc_now.astimezone(pytz.timezone('US/Pacific'))
+        utc_now = pytz.utc.localize(datetime.datetime.utcnow())
+        self.pst: datetime.datetime = utc_now.astimezone(pytz.timezone('US/Pacific'))
 
-    def get_date(self):
+    def get_date(self) -> str:
         """
         Returns the date in the PST timezone. "January 1, 2000" format.
         """
-        current_day = self.pst.strftime("%B %d, %Y")
+        current_day: str = self.pst.strftime("%B %d, %Y")
 
         return current_day
 
-    def get_time(self):
+    def get_time(self) -> str:
         """
         Returns the current time in the PST timezone. "01:00 AM" format.
         """
-        current_time = self.pst.strftime('%I:%M %p')
+        current_time: str = self.pst.strftime('%I:%M %p')
 
         return current_time
 
-    def current_month(self):
+    def current_month(self) -> str:
         month = self.pst.month if self.pst.month >= 10 else f"0{self.pst.month}"
         return f"{self.pst.year}-{month}"
 
     @staticmethod
-    def get_days_in_month(year: int, month: int):
+    def get_days_in_month(year: int, month: int) -> int:
         """
         Returns the number of days there are in the specified month in the specified year.
 
@@ -66,61 +66,48 @@ class AWSManager:
             aws_secret_access_key=os.getenv('AWS_SECRET_ACCESS_KEY')
         )
 
-        self.bucket_name = os.getenv("BUCKET_NAME")
+        self.bucket_name: str = os.getenv("BUCKET_NAME")
 
-    def update_file(self, file: str, data, type_of: str):
+    def update_file(self, file: str, data) -> None:
         """
         Gets content from a file, deletes the original, and uploads the updated version.
         :param file: Name of file.
         :param data: Dictionary of updated data.
-        :param type_of: Type of file. Can either be "str" or "dict".
         """
-        types = ("str", "dict")
+        assert type(data) in (str, dict), "data must be either str or dict."
 
-        assert type(type_of) is str, '"type_of" must be a string.'
-        assert type_of in types, '"type_of" must either be "str" or "dict".'
+        bytes_data: bytes = self.s3.Bucket(self.bucket_name).Object(file).get()['Body'].read()
 
-        bytes_data = self.s3.Bucket(self.bucket_name).Object(file).get()['Body'].read()
-
-        if type_of == "dict":
-            dictionary = ConvertManager().bytes_to_dictionary(bytes_data)
+        if type(data) is dict:
+            dictionary: dict = ConvertManager().bytes_to_dictionary(bytes_data)
 
             dictionary.update(data)
 
             self.s3.Bucket(self.bucket_name).Object(file).delete()
-            data_for_aws = ConvertManager().dictionary_to_bytes(dictionary)
+            data_for_aws: bytes = ConvertManager().to_bytes(dictionary)
 
             self.s3.Bucket(self.bucket_name).put_object(Key=file, Body=data_for_aws)
 
-        elif type_of == "str":
+        elif type(data) is str:
             self.s3.Bucket(self.bucket_name).Object(file).delete()
-            data_for_aws = ConvertManager().string_to_bytes(data)
+            data_for_aws: bytes = ConvertManager().to_bytes(data)
 
             self.s3.Bucket(self.bucket_name).put_object(Key=file, Body=data_for_aws)
 
-    def get_file(self, file: str, type_of: str):
+    def get_file(self, file: str) -> bytes:
         """
         Returns the content of a file.
         :param file: Name of file.
-        :param type_of: The type of file we need. Can be "dict" or "str".
         :return: Dictionary
         """
-        types = ("str", "dict")
+        bytes_data: bytes = self.s3.Bucket(self.bucket_name).Object(file).get()['Body'].read()
 
-        assert type(type_of) is str, '"type_of" must be a string.'
-        assert type_of in types, '"type_of" must either be "str" or "dict".'
-
-        bytes_data = self.s3.Bucket(self.bucket_name).Object(file).get()['Body'].read()
-
-        if type_of == "dict":
-            return ConvertManager().bytes_to_dictionary(bytes_data)
-        elif type_of == "str":
-            return ConvertManager().bytes_to_string(bytes_data)
+        return bytes_data
 
 
 class DataManager:
     @staticmethod
-    def create_frame():
+    def create_frame() -> None:
         """
         This is for developmental purposes only.
         Creates a brand new set for testing.
@@ -128,7 +115,7 @@ class DataManager:
         assert not isPublic, '"isPublic" is set to True. This is a development function.'
 
         def create_new_data():
-            return [random.randint(180, 200) for i in range(0, 5)]
+            return [random.randint(180, 200) for _ in range(0, 5)]
 
         frame = pd.DataFrame({
             "Date": ["2021-11-29", "2021-11-30", "2021-12-01", "2021-12-05", "2021-11-10"],
@@ -140,9 +127,9 @@ class DataManager:
         frame.to_csv(toFile, index=False)
 
     @staticmethod
-    def return_dataframe():
+    def return_dataframe() -> pd.DataFrame:
         if isPublic:
-            data_string = AWSManager().get_file(toFile, "str")
+            data_string: str = ConvertManager.bytes_to_string(AWSManager().get_file(toFile))
             f = io.StringIO(data_string)
             frame = pd.read_csv(f, index_col='Date')
             f.close()
@@ -152,12 +139,12 @@ class DataManager:
         return frame
 
     @staticmethod
-    def record_weight(data: bytes, passcode: str):
+    def record_weight(data: bytes, passcode: str) -> bytes:
         """
         Records the weight of the individual.
         """
         data = ConvertManager.bytes_to_dictionary(data)
-        data_to_return = {}
+        data_to_return: dict[str, str] = {}
         successful = True
 
         # Checking if the data from the server is as specified in the documentation.
@@ -187,15 +174,13 @@ class DataManager:
             successful = False
 
         if not successful:
-            return ConvertManager.dictionary_to_bytes(data_to_return)
+            return ConvertManager.to_bytes(data_to_return)
 
         weight = float(data["weight"])
 
-        assert type(weight) is int or type(weight) is float, '"weight" parameter must be either an integer or a float.'
-
         time = TimeManager().pst
 
-        user_id = user_id if type(user_id) is str else str(user_id)
+        user_id: str = user_id if type(user_id) is str else str(user_id)
         day = time.day if time.day >= 10 else f"0{time.day}"
         month = time.month if time.month >= 10 else f"0{time.month}"
         date = f"{time.year}-{month}-{day}"
@@ -213,45 +198,27 @@ class DataManager:
         if not isPublic:
             dataframe.to_csv(toFile, index=True, index_label="Date")
         else:
-            AWSManager().update_file(os.getenv("NAME_OF_CSV"), dataframe.to_csv(index=True, index_label="Date"), "str")
+            AWSManager().update_file(os.getenv("NAME_OF_CSV"), dataframe.to_csv(index=True, index_label="Date"))
 
-        data_to_return = DataManager.get_user_weight(user_id, "-", False, passcode)
+        data_to_return: bytes = DataManager.get_user_weight(user_id, "-", passcode)
 
-        return ConvertManager.dictionary_to_bytes(data_to_return)
+        return data_to_return
 
     @staticmethod
-    def get_user_weight(user_id: str, month_req: str, convert: bool, passcode: str):
-        """
-        Returns the weight for the specified user.
-        :param user_id: String
-        :param month_req: String
-        :param convert: Boolean, specify if you want it converted or not.
-        :return: Dictionary of the data for the specified user.
-        """
+    def get_user_weight(user_id: str, month_req: str, passcode: str) -> bytes:
         assert type(user_id) is str, 'For performance, please set "user_id" to a string.'
-
-        """
-        How "month" works:
-        "-" means current month
-        Getting any other month must be in the "xxxx-xx" format.
-        """
 
         if not AuthManager.auth(user_id, passcode):
             data = {"message": "ERROR: Wrong passcode."}
-            if convert:
-                return ConvertManager.dictionary_to_bytes(data)
-            else:
-                return data
+
+            return ConvertManager.to_bytes(data)
 
         user_exists = DataManager.user_check(user_id)
 
         if not user_exists:
             data = {"message": f"ERROR: User '{user_id}' is not in the database."}
 
-            if convert:
-                return ConvertManager.dictionary_to_bytes(data)
-            else:
-                return data
+            return ConvertManager.to_bytes(data)
 
         frame = DataManager.return_dataframe()
         dates = frame.index.values
@@ -264,7 +231,7 @@ class DataManager:
             if len(month_data) > 0 and len(month_data[0]) == 4 and len(month_data[1]) == 2:
                 month = month_req[:8]
             else:
-                return ConvertManager.dictionary_to_bytes({
+                return ConvertManager.to_bytes({
                     "message": "ERROR: Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH)."
                 })
 
@@ -272,24 +239,18 @@ class DataManager:
             if month in dates[index]:
                 data["weight"][dates[index]] = value
 
-        if convert:
-            return ConvertManager.dictionary_to_bytes(data)
-        else:
-            return data
+        return ConvertManager.to_bytes(data)
 
     @staticmethod
-    def user_check(user_id: str):
+    def user_check(user_id: str) -> bool:
         assert type(user_id) is str, '"user_id" must be a string.'
 
         frame = DataManager.return_dataframe()
 
-        if user_id in frame.columns.values:
-            return True
-        else:
-            return False
+        return True if user_id in frame.columns.values else False
 
     @staticmethod
-    def new_user(data: bytes):
+    def new_user(data: bytes) -> bytes:
         dictionary = ConvertManager.bytes_to_dictionary(data)
         data_to_return = {}
         successful = True
@@ -307,7 +268,7 @@ class DataManager:
                 successful = False
 
         if not successful:
-            return ConvertManager.dictionary_to_bytes(data_to_return)
+            return ConvertManager.to_bytes(data_to_return)
 
         user_id = dictionary["user_id"]
 
@@ -315,7 +276,7 @@ class DataManager:
             frame = DataManager.return_dataframe()
 
             length = len(frame.index.values)
-            frame[user_id] = [0.0 for i in range(0, length)]
+            frame[user_id] = [0.0 for _ in range(0, length)]
 
             if not isPublic:
                 frame.to_csv(toFile, index=True, index_label="Date")
@@ -324,7 +285,7 @@ class DataManager:
                 content = f.read()
                 f.close()
 
-                auth = dict(json.loads(content))
+                auth: dict = json.loads(content)
 
                 auth[user_id] = dictionary['passcode']
 
@@ -332,61 +293,47 @@ class DataManager:
                 f.write(json.dumps(auth))
                 f.close()
             else:
-                AWSManager().update_file(toFile, frame.to_csv(index=True, index_label="Date"), "str")
+                AWSManager().update_file(toFile, frame.to_csv(index=True, index_label="Date"))
 
-                auth = AWSManager().get_file(toAuth, "dict")
+                auth: dict = ConvertManager.bytes_to_dictionary(AWSManager().get_file(toAuth))
 
                 auth[user_id] = dictionary['passcode']
 
-                AWSManager().update_file(toAuth, auth, "dict")
+                AWSManager().update_file(toAuth, auth)
 
             returning_data = {"message": "SUCCESS"}
 
-            return ConvertManager.dictionary_to_bytes(returning_data)
+            return ConvertManager.to_bytes(returning_data)
         else:
             returning_data = {"message": f"ERROR: User '{user_id}' already exists."}
-            return ConvertManager.dictionary_to_bytes(returning_data)
+            return ConvertManager.to_bytes(returning_data)
 
 
 class ConvertManager:
-    """
-    Converts from bytes to dictionary and vice versa.
-    """
     @staticmethod
-    def bytes_to_string(data_to_convert: bytes):
+    def bytes_to_string(data_to_convert: bytes) -> str:
         return data_to_convert.decode('utf-8')
 
     @staticmethod
-    def bytes_to_dictionary(data_to_convert: bytes):
-        """
-        Converts bytes into a dictionary.
-        :param data_to_convert: Bytes
-        :return: Dictionary
-        """
-
+    def bytes_to_dictionary(data_to_convert: bytes) -> dict:
         return ast.literal_eval(data_to_convert.decode('utf-8'))
 
     @staticmethod
-    def dictionary_to_bytes(data_to_convert: dict):
-        """
-        Converts dictionary into bytes.
-        :param data_to_convert: Dictionary
-        :return: Bytes
-        """
+    def to_bytes(data_to_convert) -> bytes:
+        assert type(data_to_convert) in (dict, str), "data must be either dict or str."
 
-        return json.dumps(data_to_convert, indent=2).encode('utf-8')
-
-    @staticmethod
-    def string_to_bytes(data_to_convert: str):
-        return data_to_convert.encode('utf-8')
+        if type(data_to_convert) == dict:
+            return json.dumps(data_to_convert, indent=2).encode('utf-8')
+        elif type(data_to_convert) == str:
+            return data_to_convert.encode('utf-8')
 
 
 class AuthManager:
     @staticmethod
-    def auth(username: str, passcode: str):
+    def auth(username: str, passcode: str) -> bool:
         if isPublic:
-            auth_d: dict = AWSManager().get_file(toAuth, "dict")
+            auth_d: dict = ConvertManager.bytes_to_dictionary(AWSManager().get_file(toAuth))
         else:
-            auth_d = json.loads(open(toAuth).read())
+            auth_d: dict = json.loads(open(toAuth).read())
 
         return True if auth_d[username] == passcode else False
