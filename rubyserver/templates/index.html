@@ -4,7 +4,7 @@
         <title>Ruby</title>
         <meta name="description" content="Try the Ruby tool on Discord!">
         <link rel="icon" href="{{ url_for('static', filename='images/logo_transparent.png') }}">
-        <meta name="author" content="Carlos Valdez">
+        <meta name="author" content="SelfDotUser">
 
         <meta charset="UTF-8">
         <link rel="stylesheet" type="text/css" href= "{{ url_for('static',filename='styles/style.css') }}">
@@ -18,25 +18,30 @@
 
             <ul>
                 <a href="./about.html">About</a>
+                <a href="./developers.html">Developers</a>
                 <a href="https://discord.gg/CQdXH8aSb6">Discord</a>
             </ul>
         </div>
 
 
         <div class="Content" id="content-div">
-            <h1 style="text-align:center; padding-top:80px">Document your weight using the Ruby tool!</h1>
+            <img id="logo-in-content" src="/static/images/logo_transparent.png">
+            <h1 id="headline">Document your weight using the Ruby tool!</h1>
 
-            <img style="text-align:center;" onclick="document.location='https://discord.gg/CQdXH8aSb6'" src="/static/images/discord.png">
+            <img id="discord-logo-content" onclick="document.location='https://discord.gg/CQdXH8aSb6'" src="/static/images/discord.png">
+            <h3 id="ruby-api-content" onclick="document.location='https://github.com/SelfDotUser/Ruby-Server'">Ruby API</h3>
         </div>
 
         <div class="Footer">
-            <h6>(c) Carlos Valdez</h6>
+            <h6>(c) SelfDotUser</h6>
         </div>
 
         <script>
-            const height_by_content = document.body.clientHeight - 12;
+            const proposed_weight = document.body.clientHeight / 1.5;
 
-            document.getElementById("content-div").style.height = `${height_by_content}px`;
+            if (!proposed_weight < document.body.clientHeight) {
+                document.getElementById("content-div").style.height = proposed_weight;
+            }
         </script>
     </body>
 </html>

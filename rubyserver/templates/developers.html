@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <title>Ruby Developers</title>
+        <meta name="description" content="Let's develop with Ruby!">
+        <link rel="icon" href="{{ url_for('static', filename='images/logo_transparent.png') }}">
+        <meta name="author" content="SelfDotUser">
+
+        <meta charset="UTF-8">
+        <link rel="stylesheet" href= "{{ url_for('static',filename='styles/style.css') }}">
+    </head>
+
+    <body>
+        <div class="Header">
+            <img onclick="document.location='./'" src="/static/images/logo_transparent.png">
+            <h1>Ruby</h1>
+
+            <ul>
+                <a href="./about.html">About</a>
+                <a href="./developers.html" style="background-color:darkgreen;">Developers</a>
+                <a href="https://discord.gg/CQdXH8aSb6">Discord</a>
+            </ul>
+        </div>
+
+        <div class="Content">
+            <p id="paragraphs">&emsp;&emsp;&emsp;&emsp;As a developer, I understand the need for simple APIs. Ruby uses a simple REST API with documentation available on GitHub. Ruby is also open-source, so you can find all of the git repositories on GitHub.</p>
+            <p id="paragraphs">&emsp;&emsp;&emsp;&emsp;Choose below:</p>
+            <br>
+            <p id="ruby-api-content" style="text-align: center;">Ruby API</p>
+            <p id="ruby-api-content" style="text-align: center;">Ruby for Discord</p>
+            <p id="ruby-api-content" style="text-align: center;">Ruby for iOS (coming soon)</p>
+        </div>
+
+        <div class="Footer">
+            <h6>(c) SelfDotUser</h6>
+        </div>
+
+        <script>
+            const proposed_weight = document.body.clientHeight / 1.5;
+
+            if (!proposed_weight < document.body.clientHeight) {
+                document.getElementById("content-div").style.height = proposed_weight;
+            }
+        </script>
+    </body>
+</html>

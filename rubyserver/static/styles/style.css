@@ -34,7 +34,8 @@
 }
 
 .Header a{
-    color:black;
+    color: rgb(42, 42, 42);
+    font-weight: bold;
     text-decoration: none;
     display:inline-block;
     padding:12px 20px;
@@ -53,19 +54,8 @@
     background-color:rgb(132,202,128);
     padding:20px;
     font-family:'Courier New', Courier, monospace;
-}
-
-.Content img {
-    display: block;
-    margin-left: auto;
-    margin-right: auto;
-    width: 50%;
-    height:80px;
-    width:auto;
-}
-
-.Content img:hover {
-    cursor:pointer;
+    color: rgb(42, 42, 42);
+    font-weight: bold;
 }
 
 
@@ -78,4 +68,49 @@
     margin:auto;
     color:white;
     font-family:Arial, Helvetica, sans-serif;
+}
+
+#paragraphs {
+    padding-left: 150px;
+    padding-right: 150px;
+    font-size:20px;
+}
+
+#logo-in-content {
+    text-align: center;
+    height: 350px;
+    width: 350px;
+    display: block;
+    margin-left: auto;
+    margin-right: auto;
+    width:auto;
+}
+
+#headline {
+    text-align: center;
+    padding-top: 80px;
+}
+
+#discord-logo-content {
+    text-align: left;
+    padding-top: 100px;
+    padding-left: 150px;
+    width: 400px;
+    height: auto;
+}
+
+#discord-logo-content:hover {
+    cursor:pointer;
+}
+
+#ruby-api-content {
+    font-weight: bold;
+    font-size: 80px;
+    text-align: right;
+    padding-right: 150px;
+    display: block;
+}
+
+#ruby-api-content:hover {
+    cursor: pointer;
 }

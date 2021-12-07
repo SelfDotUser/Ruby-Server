@@ -4,7 +4,7 @@
         <title>About Ruby</title>
         <meta name="description" content="What is the Ruby tool anyways?">
         <link rel="icon" href="{{ url_for('static', filename='images/logo_transparent.png') }}">
-        <meta name="author" content="Carlos Valdez">
+        <meta name="author" content="SelfDotUser">
 
         <meta charset="UTF-8">
         <link rel="stylesheet" href= "{{ url_for('static',filename='styles/style.css') }}">
@@ -18,32 +18,30 @@
 
             <ul>
                 <a href="./about.html" style="background-color:darkgreen;">About</a>
+                <a href="./developers.html">Developers</a>
                 <a href="https://discord.gg/CQdXH8aSb6">Discord</a>
             </ul>
         </div>
 
 
         <div class="Content">
-            <p style="padding-left:150px; padding-right:150px">&emsp;The Ruby tool was designed by Carlos Valdez, a student at the University of California, Irvine.</p>
-            <p style="padding-left:150px; padding-right:150px">&emsp;Ruby is a rather simple tool: it documents weight. The Ruby project began mostly to test Carlos’ abilities in things he’s tried to learn for the last year: A combination of working with the Python, JavaScript, and Swift languages, as well as the development of REST APIs, websites, nodeJS applications, and iOS applications. Combining everything he’s learned for the last year, Carlos managed to create a REST API that can be used by developers, a Discord bot, and (soon to come) an iOS app. Also this neat website!</p>
-            <p style="padding-left:150px; padding-right:150px">&emsp;As the pandemic was raging on, Carlos found it useful to document his weight in graphs. He had used the Apple Health app to document his weight, however, he now wanted to challenge himself to create useful applications for people outside of the Apple ecosystem that also wanted the pleasure of documenting weight on any operating system.</p>
-            <p style="padding-left:150px; padding-right:150px">&emsp;Ruby is here to close that gap.</p>
+            <p id="paragraphs">&emsp;&emsp;&emsp;&emsp;SelfDotUser, a student at the University of California, Irvine, designed the Ruby Tool.</p>
+            <p id="paragraphs">&emsp;&emsp;&emsp;&emsp;Ruby is a simple tool: it documents weight. As the COVID-19 pandemic raged on, SelfDotUser began a weight loss journey. He discovered that graphing his weight loss motivated him to continue his journey. Although he had used the Apple Health app, SelfDotUser wanted to create his own weight graphing tool. In comes Ruby.</p>
+            <p id="paragraphs">&emsp;&emsp;&emsp;&emsp;The project began as a challenge to SelfDotUser to improve on all areas he is perfecting. Ruby uses a combination of Python, TypeScript, and Swift to function. Using technologies from the web, REST APIs, Node.js, and iOS, Ruby continues to improve thanks to the restlessness of its sole developer.</p>
             <br>
-
-            <h1 style="text-align:center;">Document your weight using the Ruby tool!</h1>
-
-            <img style="text-align:center;" onclick="document.location='https://discord.gg/CQdXH8aSb6'" src="/static/images/discord.png">
         </div>
 
 
         <div class="Footer">
-            <h6>(c) Carlos Valdez</h6>
+            <h6>(c) SelfDotUser</h6>
         </div>
 
         <script>
-            const height_by_content = document.body.clientHeight - 12;
+            const proposed_weight = document.body.clientHeight / 1.5;
 
-            document.getElementById("content-div").style.height = `${height_by_content}px`;
+            if (!proposed_weight < document.body.clientHeight) {
+                document.getElementById("content-div").style.height = proposed_weight;
+            }
         </script>
 
     </body>
