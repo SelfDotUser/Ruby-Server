@@ -10,7 +10,7 @@
         <link rel="stylesheet" href= "{{ url_for('static',filename='styles/style.css') }}">
     </head>
 
-    <body>
+    <body class="Body">
         <div class="Header">
             <img onclick="document.location='./'" src="/static/images/logo_transparent.png">
             <h1>Ruby</h1>
@@ -25,10 +25,10 @@
         <div class="Content">
             <p id="paragraphs">&emsp;&emsp;&emsp;&emsp;As a developer, I understand the need for simple APIs. Ruby uses a simple REST API with documentation available on GitHub. Ruby is also open-source, so you can find all of the git repositories on GitHub.</p>
             <p id="paragraphs">&emsp;&emsp;&emsp;&emsp;Choose below:</p>
-            <br>
-            <p id="ruby-api-content" style="text-align: center;">Ruby API</p>
-            <p id="ruby-api-content" style="text-align: center;">Ruby for Discord</p>
-            <p id="ruby-api-content" style="text-align: center;">Ruby for iOS (coming soon)</p>
+            <p id="ruby-repos" onclick="document.location='https://github.com/SelfDotUser/Ruby-Server'">Ruby API</p>
+            <p id="ruby-repos" onclick="document.location='https://github.com/SelfDotUser/Ruby-DiscordBot'">Ruby Discord Bot</p>
+            <p id="ruby-repos" style="margin-bottom: 0px;" onclick="document.location='https://github.com/SelfDotUser/Ruby-iOS'">Ruby iOS App</p>
+            <p style="text-align: center; font-weight: bold; margin-top: 10px;">(coming soon)</p>
         </div>
 
         <div class="Footer">
