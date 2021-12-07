@@ -53,3 +53,10 @@ def about():
     :return: About page
     """
     return render_template('/about.html')
+
+@app.route("/developers.html", methods=["GET"])
+def developers():
+    """
+    :return: Developers page
+    """
+    return render_template("/developers.html")
