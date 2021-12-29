@@ -54,9 +54,20 @@ def about():
     """
     return render_template('/about.html')
 
+
 @app.route("/developers.html", methods=["GET"])
 def developers():
     """
     :return: Developers page
     """
     return render_template("/developers.html")
+
+
+@app.route("/shortcuts_update", methods=["POST"])
+def shortcuts() -> bytes:
+    """
+    This checks to see if the Shortcuts version of Ruby needs an update.
+
+    :return: The update JSON file.
+    """
+    return DataManager.shortcuts(request.data)

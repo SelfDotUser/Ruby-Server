@@ -345,6 +345,35 @@ class DataManager:
             returning_data = {"message": f"ERROR: User '{user_id}' already exists."}
             return ConvertManager.to_bytes(returning_data)
 
+    @staticmethod
+    def shortcuts(data):
+        data = ConvertManager.bytes_to_dictionary(data)
+
+        pin = data["pin"]
+
+        if pin != 0:
+            if pin is os.getenv("SHORTCUTS"):
+                update = {
+                    "update": data["update"],
+                    "version": data["version"]
+                }
+
+                AWSManager().update_file(os.getenv("NAME_OF_SHORTCUTS"), update)
+
+                returning = {"message": "Link successfully changed."}
+            else:
+                returning = {"message": "ERROR: Wrong pin."}
+        else:
+            update = ConvertManager.bytes_to_dictionary(AWSManager().get_file(os.getenv("NAME_OF_SHORTCUTS")))
+
+            returning = {
+                "version": update["version"],
+                "update": update["update"],
+                "message": "SUCCESS"
+            }
+
+        return ConvertManager.to_bytes(returning)
+
 
 class ConvertManager:
     """
