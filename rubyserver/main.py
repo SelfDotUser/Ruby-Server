@@ -63,7 +63,7 @@ def developers():
     return render_template("/developers.html")
 
 
-@app.route("/shortcuts_update", methods=["POST"])
+@app.route("/shortcuts_update/", methods=["POST"])
 def shortcuts() -> bytes:
     """
     This checks to see if the Shortcuts version of Ruby needs an update.
