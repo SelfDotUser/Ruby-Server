@@ -352,7 +352,7 @@ class DataManager:
         pin = data["pin"]
 
         if pin != 0:
-            if pin is os.getenv("SHORTCUTS"):
+            if pin == int(os.getenv("SHORTCUTS")):
                 update = {
                     "update": data["update"],
                     "version": data["version"]
