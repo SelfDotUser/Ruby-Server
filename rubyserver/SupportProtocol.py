@@ -261,7 +261,7 @@ class DataManager:
                 })
 
         for index, value in enumerate(frame.loc[:, user_id]):
-            if month in dates[index]:
+            if month in dates[index] and value not in (0.0, 0, "0.0", "0"):
                 data["weight"][dates[index]] = value
 
         return ConvertManager.to_bytes(data)
