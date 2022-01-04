@@ -7,6 +7,18 @@ Welcome to the Ruby API! Learn how to use weight data from Ruby in your projects
 Every JSON response will include a `message` key that will be either “SUCCESS” or “ERROR: ” followed by the error 
 message. It is suggested that you inspect the `message` value for either “SUCCESS” or “ERROR”.
 
+## List of Errors
+|Message|Usually in...|Suggestion|
+|---|---|---|
+|Wrong passcode.|`/api/weight/MONTH_REQUESTED/` and `/api/update-weight/`|Ensure that the passcode is the passcode associated with the user id.|
+|User `user_id` is not in the database.|`/api/weight/MONTH_REQUESTED/`| The user does not exist. Try creating it using `/api/new-user/` and try again. |
+|Requested month is in wrong format. Must be in format xxxx-xx (YEAR-MONTH).|`/api/weight/MONTH_REQUESTED/`|The `MONTH_REQUESTED` part of the link must be either "-" for the current month or the format requested by the error.|
+|'user_id' must be included.|`/api/weight/MONTH_REQUESTED/` and `/api/update-weight/`|The JSON data must include `user_id`.|
+|'weight' must be included.|`/api/update-weight/`|The JSON data must include `weight`.|
+|`EXTRA KEY` is unrecognized. Please remove it.|`/api/update-weight/` and `/api/new-user/`|You cannot include extra keys. Only the keys requested by the documentation are allowed.|
+|User `user_id` already exists.|`/api/new-user/`|This user id is taken. Use another one.|
+|'passcode' must be included.|`/api/new-user/`|The JSON data must include `passcode`.|
+
 # Authentication
 The Ruby server uses basic HTTP authentication. Since the only version of Ruby currently available is on Discord, users’
 username is their Discord user id. The bot provides their passcode. Your program will not get user weight data without the user id and the passcode.
